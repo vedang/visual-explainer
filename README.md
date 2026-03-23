@@ -38,14 +38,14 @@ Note: Claude Code plugins namespace commands as `/visual-explainer:command-name`
 
 **Pi:**
 ```bash
-curl -fsSL https://raw.githubusercontent.com/nicobailon/visual-explainer/main/install-pi.sh | bash
+# Install globally
+pi install git:github.com/nicobailon/visual-explainer
+
+# Or install for just the current project
+pi install -l git:github.com/nicobailon/visual-explainer
 ```
 
-Or clone and run:
-```bash
-git clone --depth 1 https://github.com/nicobailon/visual-explainer.git
-cd visual-explainer && ./install-pi.sh
-```
+This loads the `visual-explainer` skill plus the prompt templates (`/diff-review`, `/plan-review`, `/generate-web-diagram`, etc.) directly from the git repo.
 
 **OpenAI Codex:**
 ```bash
