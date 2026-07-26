@@ -1,0 +1,123 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://visual-explainer.dev/schemas/ve-learning-source.schema.json",
+  "title": "Visual Explainer learning source manifest",
+  "description": "Schema v1 for structural learning metadata. Learning text remains in semantic HTML.",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["schemaVersion", "medium", "source", "sections"],
+  "properties": {
+    "schemaVersion": { "const": 1 },
+    "medium": {
+      "type": "string",
+      "enum": ["page", "diagram", "table", "review", "deck"]
+    },
+    "source": { "$ref": "#/$defs/source" },
+    "sections": {
+      "type": "array",
+      "minItems": 1,
+      "contains": {
+        "type": "object",
+        "properties": {
+          "learningBlocks": {
+            "type": "array",
+            "minItems": 1
+          }
+        },
+        "required": ["learningBlocks"]
+      },
+      "items": { "$ref": "#/$defs/section" }
+    }
+  },
+  "$defs": {
+    "id": {
+      "type": "string",
+      "minLength": 1,
+      "pattern": "^[A-Za-z][A-Za-z0-9_-]*$"
+    },
+    "nonEmptyText": {
+      "type": "string",
+      "minLength": 1,
+      "pattern": ".*\\S.*"
+    },
+    "selector": {
+      "type": "string",
+      "pattern": "^(?:#[A-Za-z][A-Za-z0-9_-]*|\\[data-ve-learning-(?:block|prompt)=\\\"[A-Za-z][A-Za-z0-9_-]*\\\"\\])$"
+    },
+    "sectionSelector": {
+      "type": "string",
+      "pattern": "^#[A-Za-z][A-Za-z0-9_-]*$"
+    },
+    "learningBlockSelector": {
+      "type": "string",
+      "pattern": "^\\[data-ve-learning-block=\\\"[A-Za-z][A-Za-z0-9_-]*\\\"\\]$"
+    },
+    "promptSelector": {
+      "type": "string",
+      "pattern": "^\\[data-ve-learning-prompt=\\\"[A-Za-z][A-Za-z0-9_-]*\\\"\\]$"
+    },
+    "source": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["id", "title"],
+      "properties": {
+        "id": { "$ref": "#/$defs/id" },
+        "title": { "$ref": "#/$defs/nonEmptyText" },
+        "canonicalUrl": { "type": "string", "format": "uri" },
+        "versionUrl": { "type": "string", "format": "uri" }
+      }
+    },
+    "section": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["id", "title", "selector", "learningBlocks"],
+      "properties": {
+        "id": { "$ref": "#/$defs/id" },
+        "title": { "$ref": "#/$defs/nonEmptyText" },
+        "selector": { "$ref": "#/$defs/sectionSelector" },
+        "learningBlocks": {
+          "type": "array",
+          "items": { "$ref": "#/$defs/learningBlock" }
+        }
+      }
+    },
+    "learningBlock": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["id", "type", "selector", "prompts"],
+      "properties": {
+        "id": { "$ref": "#/$defs/id" },
+        "type": { "type": "string", "enum": ["recall", "apply"] },
+        "selector": { "$ref": "#/$defs/learningBlockSelector" },
+        "prompts": {
+          "type": "array",
+          "minItems": 1,
+          "maxItems": 3,
+          "items": { "$ref": "#/$defs/prompt" }
+        }
+      },
+      "allOf": [
+        {
+          "if": {
+            "properties": { "type": { "const": "apply" } },
+            "required": ["type"]
+          },
+          "then": {
+            "properties": {
+              "prompts": { "maxItems": 1 }
+            }
+          }
+        }
+      ]
+    },
+    "prompt": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["id", "selector"],
+      "properties": {
+        "id": { "$ref": "#/$defs/id" },
+        "selector": { "$ref": "#/$defs/promptSelector" }
+      }
+    }
+  }
+}

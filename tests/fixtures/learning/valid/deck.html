@@ -1,0 +1,53 @@
+<!doctype html>
+<html lang="en">
+<head><meta charset="utf-8"><title>Cache boundaries deck</title><style data-ve-learning-style="1">.slide{height:100dvh}.slide--learning{overflow:auto}@media (max-width:40rem){[data-ve-learning-block]{padding:.75rem}}@media (prefers-reduced-motion: reduce){*{animation:none!important;transition:none!important}}@media print{button,[data-ve-learning-feedback]{display:none!important}[data-ve-learning-answer][hidden]{display:block!important}}</style></head>
+<body>
+<div class="deck">
+  <section id="cache-model" class="slide" data-ve-learning-section="cache-model"><h1>Cache boundaries</h1><p>Cache derived data only where invalidation ownership is explicit.</p></section>
+  <section id="cache-check" class="slide slide--learning" data-ve-learning-section="cache-check">
+    <aside data-ve-learning-block="cache-slide-recall" data-ve-learning-type="recall" data-ve-learning-section="cache-check" data-ve-learning-source-locator="#cache-model" aria-labelledby="cache-slide-title">
+      <h2 id="cache-slide-title">Pause &amp; recall</h2>
+      <div data-ve-learning-prompt="cache-owner-prompt">
+        <p id="cache-owner-question">What must be explicit before adding a cache?</p>
+        <button type="button" aria-expanded="false" aria-controls="cache-owner-answer">Reveal answer</button>
+        <div id="cache-owner-answer" data-ve-learning-answer hidden role="region" aria-labelledby="cache-owner-question">
+          <p><strong>Answer:</strong> Invalidation ownership.</p>
+          <p>A dedicated check slide ends the section without crowding the model slide.</p>
+        </div>
+      </div>
+    </aside>
+  </section>
+</div>
+<script data-ve-learning-runtime="1">globalThis.veLearning=(()=>{const evaluateApplication=(selected,correct)=>selected?{reveal:true,correct:selected===correct,message:selected===correct?"Correct. Read why below.":"Not quite. Read why below."}:{reveal:false,correct:false,message:"Choose an answer first."};if(typeof document!=="undefined"){document.querySelectorAll('[data-ve-learning-type="recall"] button[aria-controls]').forEach(button=>button.addEventListener("click",()=>{const answer=document.getElementById(button.getAttribute("aria-controls"));const expanded=button.getAttribute("aria-expanded")==="true";answer.hidden=expanded;button.setAttribute("aria-expanded",String(!expanded))}));document.querySelectorAll('form[data-ve-learning-type="apply"]').forEach(form=>form.addEventListener("submit",event=>{event.preventDefault();const selected=form.querySelector('input[type="radio"]:checked');const result=evaluateApplication(selected?.value,form.dataset.correctValue);const answer=document.getElementById(form.querySelector('button[aria-controls]').getAttribute("aria-controls"));form.querySelector("[data-ve-learning-feedback]").textContent=result.message;if(!result.reveal){answer.hidden=true;form.querySelector('input[type="radio"]')?.focus();return}answer.hidden=false}))}return{evaluateApplication}})();</script>
+<script type="application/json" id="ve-learning-source">
+{
+  "schemaVersion": 1,
+  "medium": "deck",
+  "source": { "id": "cache-boundaries-deck", "title": "Cache boundaries" },
+  "sections": [
+    {
+      "id": "cache-model",
+      "title": "Cache boundary model",
+      "selector": "#cache-model",
+      "learningBlocks": []
+    },
+    {
+      "id": "cache-check",
+      "title": "Cache boundary check",
+      "selector": "#cache-check",
+      "learningBlocks": [
+        {
+          "id": "cache-slide-recall",
+          "type": "recall",
+          "selector": "[data-ve-learning-block=\"cache-slide-recall\"]",
+          "prompts": [
+            { "id": "cache-owner-prompt", "selector": "[data-ve-learning-prompt=\"cache-owner-prompt\"]" }
+          ]
+        }
+      ]
+    }
+  ]
+}
+</script>
+</body>
+</html>

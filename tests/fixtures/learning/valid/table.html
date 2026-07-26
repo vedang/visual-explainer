@@ -1,0 +1,50 @@
+<!doctype html>
+<html lang="en">
+<head><meta charset="utf-8"><title>Queue tradeoffs</title><style data-ve-learning-style="1">@media (max-width:40rem){[data-ve-learning-block]{padding:.75rem}}@media (prefers-reduced-motion: reduce){*{animation:none!important;transition:none!important}}@media print{button,[data-ve-learning-feedback]{display:none!important}[data-ve-learning-answer][hidden]{display:block!important}}</style></head>
+<body>
+<main>
+  <section id="queue-comparison" data-ve-learning-section="queue-comparison">
+    <h1>Queue tradeoffs</h1>
+    <table><caption>Delivery guarantees</caption><thead><tr><th>Mode</th><th>Duplicate risk</th><th>Loss risk</th></tr></thead><tbody><tr><td>At least once</td><td>Possible</td><td>Low</td></tr><tr><td>At most once</td><td>None</td><td>Possible</td></tr></tbody></table>
+    <form data-ve-learning-block="queue-synthesis" data-ve-learning-type="apply" data-ve-learning-section="queue-comparison" data-ve-learning-source-locator="#queue-comparison" aria-labelledby="queue-synthesis-title" data-correct-value="idempotent">
+      <h2 id="queue-synthesis-title">Apply the model</h2>
+      <fieldset data-ve-learning-prompt="queue-scenario-prompt">
+        <legend>A payment consumer cannot lose messages. Which design best handles the table's tradeoff?</legend>
+        <label><input type="radio" name="queue-design" value="at-most-once"> At-most-once delivery</label>
+        <label><input type="radio" name="queue-design" value="idempotent"> At-least-once delivery with idempotent processing</label>
+      </fieldset>
+      <button type="submit" aria-controls="queue-scenario-answer">Check answer</button>
+      <p data-ve-learning-feedback role="status" aria-live="polite"></p>
+      <div id="queue-scenario-answer" data-ve-learning-answer hidden role="status" aria-live="polite">
+        <p><strong>At-least-once plus idempotency.</strong> It accepts duplicate delivery while preventing duplicate effects.</p>
+      </div>
+    </form>
+  </section>
+</main>
+<script data-ve-learning-runtime="1">globalThis.veLearning=(()=>{const evaluateApplication=(selected,correct)=>selected?{reveal:true,correct:selected===correct,message:selected===correct?"Correct. Read why below.":"Not quite. Read why below."}:{reveal:false,correct:false,message:"Choose an answer first."};if(typeof document!=="undefined"){document.querySelectorAll('[data-ve-learning-type="recall"] button[aria-controls]').forEach(button=>button.addEventListener("click",()=>{const answer=document.getElementById(button.getAttribute("aria-controls"));const expanded=button.getAttribute("aria-expanded")==="true";answer.hidden=expanded;button.setAttribute("aria-expanded",String(!expanded))}));document.querySelectorAll('form[data-ve-learning-type="apply"]').forEach(form=>form.addEventListener("submit",event=>{event.preventDefault();const selected=form.querySelector('input[type="radio"]:checked');const result=evaluateApplication(selected?.value,form.dataset.correctValue);const answer=document.getElementById(form.querySelector('button[aria-controls]').getAttribute("aria-controls"));form.querySelector("[data-ve-learning-feedback]").textContent=result.message;if(!result.reveal){answer.hidden=true;form.querySelector('input[type="radio"]')?.focus();return}answer.hidden=false}))}return{evaluateApplication}})();</script>
+<script type="application/json" id="ve-learning-source">
+{
+  "schemaVersion": 1,
+  "medium": "table",
+  "source": { "id": "queue-tradeoffs-table", "title": "Queue tradeoffs" },
+  "sections": [
+    {
+      "id": "queue-comparison",
+      "title": "Queue comparison",
+      "selector": "#queue-comparison",
+      "learningBlocks": [
+        {
+          "id": "queue-synthesis",
+          "type": "apply",
+          "selector": "[data-ve-learning-block=\"queue-synthesis\"]",
+          "prompts": [
+            { "id": "queue-scenario-prompt", "selector": "[data-ve-learning-prompt=\"queue-scenario-prompt\"]" }
+          ]
+        }
+      ]
+    }
+  ]
+}
+</script>
+</body>
+</html>

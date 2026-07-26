@@ -33,6 +33,16 @@ Read only the references needed for the current output:
 | CSS layout, overflow, depth, collapsibles, SVG connectors, generated images | `./references/css-patterns.md` |
 | Pages with 4+ major sections | `./references/responsive-nav.md` |
 | Prose-heavy pages | “Prose Page Elements” in `css-patterns.md`, typography sections in `libraries.md` |
+| Learning treatment (required) | `./references/learning-blocks.md`, `./templates/learning-blocks.html`, `./schemas/ve-learning-source.schema.json` |
+
+## Learning treatment
+
+Every explainer artifact needs visible retrieval practice. Inline checks teach in context; they are **separate from SRS/spaced-repetition cards** and must not be copied into a Learn deck verbatim.
+
+- Read `references/learning-blocks.md`; start component markup and local-only behavior from `templates/learning-blocks.html`; validate schema-v1 metadata with `schemas/ve-learning-source.schema.json` and shipped `scripts/validate-learning-fixtures.mjs` relative to skill directory.
+- Use **Pause & recall** for free recall/reveal and **Apply the model** for scenario, plausible choices, and reasoning. Put 1–3 prompts after each major mental model; prompts test relationships or consequences, never label trivia.
+- Prose/page and diagram: mixed blocks after major models. Table: compact synthesis/tradeoff check. Review: consequence/priority/smallest-fix check. Slide/deck: section-ending learning slide that fits one viewport.
+- Keep source, section, block, and prompt IDs stable with `data-ve-learning-*`; manifest stores IDs/selectors only, never questions, answers, choices, or reasoning. No network, cookies, browser storage, login, durable progress, or mastery claim.
 
 ## Choose the representation
 
@@ -100,4 +110,7 @@ Before delivery, verify:
 - Mermaid diagrams use `diagram-shell` with zoom/pan/expand;
 - slides fit one viewport, include carousel dots, and preserve source coverage;
 - visual hierarchy makes the main idea obvious in the first viewport;
-- styling would still be recognizable if compared against a generic dark/violet template.
+- styling would still be recognizable if compared against a generic dark/violet template;
+- every artifact has visible retrieval practice, 1–3 source-grounded prompts per block, and inline checks remain separate from SRS;
+- learning controls are semantic/keyboard-operable, feedback is textual, answers print expanded, reduced motion and narrow screens work, and manifest IDs/selectors resolve;
+- learning components stay local-only: no external scripts/fonts, network, cookies, browser storage, durable progress, or mastery state.

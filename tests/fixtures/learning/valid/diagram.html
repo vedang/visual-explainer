@@ -1,0 +1,50 @@
+<!doctype html>
+<html lang="en">
+<head><meta charset="utf-8"><title>Request flow</title><style data-ve-learning-style="1">@media (max-width:40rem){[data-ve-learning-block]{padding:.75rem}}@media (prefers-reduced-motion: reduce){*{animation:none!important;transition:none!important}}@media print{button,[data-ve-learning-feedback]{display:none!important}[data-ve-learning-answer][hidden]{display:block!important}}</style></head>
+<body>
+<main>
+  <section id="request-flow" data-ve-learning-section="request-flow">
+    <h1>Request flow</h1>
+    <div class="diagram-shell" aria-label="Client requests pass through authentication before routing">
+      <div class="mermaid-wrap"><div class="mermaid-viewport">Client → Auth → Router → Service</div></div>
+    </div>
+    <aside data-ve-learning-block="diagram-flow-recall" data-ve-learning-type="recall" data-ve-learning-section="request-flow" data-ve-learning-source-locator="#request-flow" aria-labelledby="diagram-recall-title">
+      <h2 id="diagram-recall-title">Pause &amp; recall</h2>
+      <div data-ve-learning-prompt="diagram-flow-prompt">
+        <p id="diagram-flow-question">Which invariant would fail if routing happened before authentication?</p>
+        <button type="button" aria-expanded="false" aria-controls="diagram-flow-answer">Reveal answer</button>
+        <div id="diagram-flow-answer" data-ve-learning-answer hidden role="region" aria-labelledby="diagram-flow-question">
+          <p><strong>Answer:</strong> Only authenticated identities may select protected routes.</p>
+          <p>The prompt tests flow interpretation, not label recognition.</p>
+        </div>
+      </div>
+    </aside>
+  </section>
+</main>
+<script data-ve-learning-runtime="1">globalThis.veLearning=(()=>{const evaluateApplication=(selected,correct)=>selected?{reveal:true,correct:selected===correct,message:selected===correct?"Correct. Read why below.":"Not quite. Read why below."}:{reveal:false,correct:false,message:"Choose an answer first."};if(typeof document!=="undefined"){document.querySelectorAll('[data-ve-learning-type="recall"] button[aria-controls]').forEach(button=>button.addEventListener("click",()=>{const answer=document.getElementById(button.getAttribute("aria-controls"));const expanded=button.getAttribute("aria-expanded")==="true";answer.hidden=expanded;button.setAttribute("aria-expanded",String(!expanded))}));document.querySelectorAll('form[data-ve-learning-type="apply"]').forEach(form=>form.addEventListener("submit",event=>{event.preventDefault();const selected=form.querySelector('input[type="radio"]:checked');const result=evaluateApplication(selected?.value,form.dataset.correctValue);const answer=document.getElementById(form.querySelector('button[aria-controls]').getAttribute("aria-controls"));form.querySelector("[data-ve-learning-feedback]").textContent=result.message;if(!result.reveal){answer.hidden=true;form.querySelector('input[type="radio"]')?.focus();return}answer.hidden=false}))}return{evaluateApplication}})();</script>
+<script type="application/json" id="ve-learning-source">
+{
+  "schemaVersion": 1,
+  "medium": "diagram",
+  "source": { "id": "request-flow-diagram", "title": "Request flow" },
+  "sections": [
+    {
+      "id": "request-flow",
+      "title": "Request flow",
+      "selector": "#request-flow",
+      "learningBlocks": [
+        {
+          "id": "diagram-flow-recall",
+          "type": "recall",
+          "selector": "[data-ve-learning-block=\"diagram-flow-recall\"]",
+          "prompts": [
+            { "id": "diagram-flow-prompt", "selector": "[data-ve-learning-prompt=\"diagram-flow-prompt\"]" }
+          ]
+        }
+      ]
+    }
+  ]
+}
+</script>
+</body>
+</html>

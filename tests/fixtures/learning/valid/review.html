@@ -1,0 +1,50 @@
+<!doctype html>
+<html lang="en">
+<head><meta charset="utf-8"><title>Authentication diff review</title><style data-ve-learning-style="1">@media (max-width:40rem){[data-ve-learning-block]{padding:.75rem}}@media (prefers-reduced-motion: reduce){*{animation:none!important;transition:none!important}}@media print{button,[data-ve-learning-feedback]{display:none!important}[data-ve-learning-answer][hidden]{display:block!important}}</style></head>
+<body>
+<main>
+  <section id="auth-review" data-ve-learning-section="auth-review">
+    <h1>Authentication diff review</h1>
+    <article data-review-finding="token-before-body"><h2>High: token checked after body parsing</h2><p>Unauthorized callers can consume parsing resources before rejection.</p></article>
+    <form data-ve-learning-block="review-consequence" data-ve-learning-type="apply" data-ve-learning-section="auth-review" data-ve-learning-source-locator="#auth-review" aria-labelledby="review-consequence-title" data-correct-value="move-auth">
+      <h2 id="review-consequence-title">Apply the model</h2>
+      <fieldset data-ve-learning-prompt="review-priority-prompt">
+        <legend>Which smallest fix addresses the review's security consequence?</legend>
+        <label><input type="radio" name="review-fix" value="cache-body"> Cache parsed bodies</label>
+        <label><input type="radio" name="review-fix" value="move-auth"> Authenticate before body parsing</label>
+      </fieldset>
+      <button type="submit" aria-controls="review-priority-answer">Check answer</button>
+      <p data-ve-learning-feedback role="status" aria-live="polite"></p>
+      <div id="review-priority-answer" data-ve-learning-answer hidden role="status" aria-live="polite">
+        <p><strong>Move authentication earlier.</strong> Caching changes cost, not unauthorized work exposure.</p>
+      </div>
+    </form>
+  </section>
+</main>
+<script data-ve-learning-runtime="1">globalThis.veLearning=(()=>{const evaluateApplication=(selected,correct)=>selected?{reveal:true,correct:selected===correct,message:selected===correct?"Correct. Read why below.":"Not quite. Read why below."}:{reveal:false,correct:false,message:"Choose an answer first."};if(typeof document!=="undefined"){document.querySelectorAll('[data-ve-learning-type="recall"] button[aria-controls]').forEach(button=>button.addEventListener("click",()=>{const answer=document.getElementById(button.getAttribute("aria-controls"));const expanded=button.getAttribute("aria-expanded")==="true";answer.hidden=expanded;button.setAttribute("aria-expanded",String(!expanded))}));document.querySelectorAll('form[data-ve-learning-type="apply"]').forEach(form=>form.addEventListener("submit",event=>{event.preventDefault();const selected=form.querySelector('input[type="radio"]:checked');const result=evaluateApplication(selected?.value,form.dataset.correctValue);const answer=document.getElementById(form.querySelector('button[aria-controls]').getAttribute("aria-controls"));form.querySelector("[data-ve-learning-feedback]").textContent=result.message;if(!result.reveal){answer.hidden=true;form.querySelector('input[type="radio"]')?.focus();return}answer.hidden=false}))}return{evaluateApplication}})();</script>
+<script type="application/json" id="ve-learning-source">
+{
+  "schemaVersion": 1,
+  "medium": "review",
+  "source": { "id": "auth-diff-review", "title": "Authentication diff review" },
+  "sections": [
+    {
+      "id": "auth-review",
+      "title": "Authentication finding",
+      "selector": "#auth-review",
+      "learningBlocks": [
+        {
+          "id": "review-consequence",
+          "type": "apply",
+          "selector": "[data-ve-learning-block=\"review-consequence\"]",
+          "prompts": [
+            { "id": "review-priority-prompt", "selector": "[data-ve-learning-prompt=\"review-priority-prompt\"]" }
+          ]
+        }
+      ]
+    }
+  ]
+}
+</script>
+</body>
+</html>

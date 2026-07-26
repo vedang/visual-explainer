@@ -1,0 +1,137 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Learning blocks — canonical example</title>
+  <style data-ve-learning-style="1">
+    :root { --bg: #f7f3ea; --surface: #fffdf8; --ink: #1c2a2b; --dim: #536261; --line: #c8d1c9; --accent: #0d6b62; --warm: #9b4a2e; }
+    * { box-sizing: border-box; }
+    body { margin: 0; background: var(--bg); color: var(--ink); font: 1rem/1.55 Georgia, "Times New Roman", serif; }
+    main { width: min(100% - 2rem, 52rem); margin: 0 auto; padding: 3rem 0 5rem; }
+    h1, h2 { font-family: "Trebuchet MS", sans-serif; line-height: 1.15; }
+    .ve-learning { margin: 2rem 0; padding: 1.25rem; border: 1px solid var(--line); border-left: .4rem solid var(--accent); border-radius: .5rem; background: var(--surface); }
+    .ve-learning__eyebrow { margin: 0 0 .35rem; color: var(--accent); font: 700 .78rem/1 "Trebuchet MS", sans-serif; letter-spacing: .08em; text-transform: uppercase; }
+    .ve-learning__prompt + .ve-learning__prompt { margin-top: 1rem; padding-top: 1rem; border-top: 1px solid var(--line); }
+    .ve-learning button { border: 1px solid var(--accent); border-radius: .25rem; background: var(--accent); color: white; cursor: pointer; font: inherit; padding: .55rem .8rem; }
+    .ve-learning button:focus-visible, .ve-learning input:focus-visible { outline: 3px solid var(--warm); outline-offset: 3px; }
+    [data-ve-learning-answer] { margin-top: .8rem; padding: .8rem 1rem; border-left: .25rem solid var(--warm); background: #f9eee8; }
+    .ve-learning fieldset { margin: 0; border: 0; padding: 0; }
+    .ve-learning legend { font-weight: 700; margin-bottom: .6rem; }
+    .ve-learning label { display: block; margin: .45rem 0; }
+    .ve-learning__feedback { min-height: 1.5rem; font-weight: 700; }
+    @media (max-width: 38rem) { main { width: min(100% - 1rem, 52rem); padding-top: 1.5rem; } .ve-learning { padding: 1rem; } .ve-learning button { width: 100%; } }
+    @media (prefers-reduced-motion: reduce) { *, *::before, *::after { scroll-behavior: auto !important; transition-duration: .01ms !important; animation-duration: .01ms !important; } }
+    @media print { body { background: white; } .ve-learning { break-inside: avoid; border-color: #555; } .ve-learning button, .ve-learning__feedback { display: none; } [data-ve-learning-answer][hidden] { display: block !important; } }
+  </style>
+</head>
+<body>
+  <main>
+    <section id="retry-model" data-ve-learning-section="retry-model">
+      <p class="ve-learning__eyebrow">Canonical learning component</p>
+      <h1>Retry ownership</h1>
+      <p>Put retry policy at shared API client boundary. Individual callers then cannot multiply attempts without seeing common budget.</p>
+
+      <aside class="ve-learning" data-ve-learning-block="retry-recall" data-ve-learning-type="recall" data-ve-learning-section="retry-model" data-ve-learning-source-locator="#retry-model" aria-labelledby="retry-recall-title">
+        <p class="ve-learning__eyebrow">Pause &amp; recall</p>
+        <h2 id="retry-recall-title">Name policy owner before revealing</h2>
+        <div class="ve-learning__prompt" data-ve-learning-prompt="retry-owner-prompt">
+          <p id="retry-owner-question">Which boundary owns retry policy, and what failure does that prevent?</p>
+          <button type="button" aria-expanded="false" aria-controls="retry-owner-answer">Reveal answer</button>
+          <div id="retry-owner-answer" data-ve-learning-answer hidden role="region" aria-labelledby="retry-owner-question">
+            <strong>Shared API client boundary.</strong> Central ownership prevents callers from nesting retries and multiplying total attempts.
+          </div>
+        </div>
+      </aside>
+
+      <form class="ve-learning" data-ve-learning-block="retry-apply" data-ve-learning-type="apply" data-ve-learning-section="retry-model" data-ve-learning-source-locator="#retry-model" data-correct-value="client" aria-labelledby="retry-apply-title">
+        <p class="ve-learning__eyebrow">Apply the model</p>
+        <h2 id="retry-apply-title">Choose smallest safe placement</h2>
+        <fieldset class="ve-learning__prompt" data-ve-learning-prompt="retry-scenario-prompt">
+          <legend>A controller times out while calling shared API client. Where should attempt limit live?</legend>
+          <label><input type="radio" name="retry-owner" value="controller"> Every controller independently</label>
+          <label><input type="radio" name="retry-owner" value="client"> Shared API client</label>
+        </fieldset>
+        <button type="submit" aria-controls="retry-scenario-answer">Check answer</button>
+        <p class="ve-learning__feedback" data-ve-learning-feedback role="status" aria-live="polite"></p>
+        <div id="retry-scenario-answer" data-ve-learning-answer hidden role="status" aria-live="polite">
+          <strong>Shared API client.</strong> Controller retries compound and conceal true attempt budget; client boundary makes policy common and inspectable.
+        </div>
+      </form>
+    </section>
+  </main>
+
+  <script type="application/json" id="ve-learning-source">
+  {
+    "schemaVersion": 1,
+    "medium": "page",
+    "source": { "id": "retry-ownership-example", "title": "Retry ownership" },
+    "sections": [
+      {
+        "id": "retry-model",
+        "title": "Retry ownership model",
+        "selector": "#retry-model",
+        "learningBlocks": [
+          {
+            "id": "retry-recall",
+            "type": "recall",
+            "selector": "[data-ve-learning-block=\"retry-recall\"]",
+            "prompts": [{ "id": "retry-owner-prompt", "selector": "[data-ve-learning-prompt=\"retry-owner-prompt\"]" }]
+          },
+          {
+            "id": "retry-apply",
+            "type": "apply",
+            "selector": "[data-ve-learning-block=\"retry-apply\"]",
+            "prompts": [{ "id": "retry-scenario-prompt", "selector": "[data-ve-learning-prompt=\"retry-scenario-prompt\"]" }]
+          }
+        ]
+      }
+    ]
+  }
+  </script>
+  <script data-ve-learning-runtime="1">
+    (() => {
+      function evaluateApplication(selected, correct) {
+        if (!selected) return { reveal: false, correct: false, message: "Choose an answer first." };
+        const isCorrect = selected === correct;
+        return {
+          reveal: true,
+          correct: isCorrect,
+          message: isCorrect ? "Correct. Read why below." : "Not quite. Read why below.",
+        };
+      }
+
+      globalThis.veLearning = { evaluateApplication };
+      if (typeof document === "undefined") return;
+
+      for (const button of document.querySelectorAll('[data-ve-learning-type="recall"] button[aria-controls]')) {
+        button.addEventListener("click", () => {
+          const answer = document.getElementById(button.getAttribute("aria-controls"));
+          const expanded = button.getAttribute("aria-expanded") === "true";
+          answer.hidden = expanded;
+          button.setAttribute("aria-expanded", String(!expanded));
+          button.textContent = expanded ? "Reveal answer" : "Hide answer";
+        });
+      }
+
+      for (const form of document.querySelectorAll('form[data-ve-learning-type="apply"]')) {
+        form.addEventListener("submit", (event) => {
+          event.preventDefault();
+          const selected = form.querySelector('input[type="radio"]:checked');
+          const answer = document.getElementById(form.querySelector("button[aria-controls]").getAttribute("aria-controls"));
+          const feedback = form.querySelector("[data-ve-learning-feedback]");
+          const result = evaluateApplication(selected?.value, form.dataset.correctValue);
+
+          feedback.textContent = result.message;
+          if (!result.reveal) {
+            answer.hidden = true;
+            form.querySelector('input[type="radio"]')?.focus();
+            return;
+          }
+          answer.hidden = false;
+        });
+      }
+    })();
+  </script>
+</body>
+</html>
