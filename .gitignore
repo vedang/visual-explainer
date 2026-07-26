@@ -1,1 +1,4 @@
 .DS_Store
+.agents/plans/
+.pi/extensions/simplify-code.json
+.pi-subagents/
