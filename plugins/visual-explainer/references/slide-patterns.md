@@ -1,6 +1,6 @@
 # Slide Deck Patterns
 
-CSS patterns, JS engine, slide type layouts, transitions, navigation chrome, and curated presets for self-contained HTML slide presentations. All slides are viewport-fit (100dvh), single-file, same philosophy as scrollable pages.
+CSS patterns, JS engine, slide type layouts, transitions, navigation chrome, and curated presets for self-contained HTML slide presentations. Every slide gets one `100dvh` viewport budget, but that CSS height does not prove that its content fits. Because the default slide clips overflow, run the delivery check below before shipping instead of relying on the browser to reveal a problem.
 
 **When to use slides:** Only when the user explicitly requests them — `/generate-slides`, `--slides` flag on an existing prompt, or natural language like "as a slide deck." Never auto-select slide format.
 
@@ -29,7 +29,7 @@ When converting a plan, spec, review, or any structured document into slides, fo
 
 ## Slide Engine Base
 
-The deck is a scroll-snap container. Each slide is exactly one viewport tall.
+The deck is a scroll-snap container. Each slide is allocated one viewport; only a passing delivery check proves that its content fits inside that `100dvh` budget.
 
 ```html
 <body>
@@ -52,7 +52,7 @@ The deck is a scroll-snap container. Each slide is exactly one viewport tall.
   -webkit-overflow-scrolling: touch;
 }
 
-/* Individual slide */
+/* Individual slide — keep overflow hidden only after the delivery check passes */
 .slide {
   height: 100dvh;
   scroll-snap-align: start;
@@ -122,16 +122,23 @@ Slide typography is 2–3× larger than scrollable pages. Page-sized text on a v
 
 ## Cinematic Transitions
 
-IntersectionObserver adds `.visible` when a slide enters the viewport. Slides animate in once and stay visible when scrolling back.
+IntersectionObserver adds `.visible` when a slide enters the viewport. Slides animate in once and stay visible when scrolling back. Gate hidden states on a `.js` class so decks stay readable in no-JS previews such as QuickLook.
+
+```html
+<script>document.documentElement.classList.add('js');</script>
+```
 
 ```css
 /* Slide entrance — fade + lift + subtle scale */
 .slide {
-  opacity: 0;
-  transform: translateY(40px) scale(0.98);
   transition:
     opacity 0.6s cubic-bezier(0.16, 1, 0.3, 1),
     transform 0.6s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.js .slide {
+  opacity: 0;
+  transform: translateY(40px) scale(0.98);
 }
 
 .slide.visible {
@@ -140,7 +147,7 @@ IntersectionObserver adds `.visible` when a slide enters the viewport. Slides an
 }
 
 /* Staggered child reveals — add .reveal to each content element */
-.slide .reveal {
+.js .slide .reveal {
   opacity: 0;
   transform: translateY(20px);
   transition:
@@ -173,24 +180,30 @@ IntersectionObserver adds `.visible` when a slide enters the viewport. Slides an
 
 ## Navigation Chrome
 
-All navigation is `position: fixed` with high z-index, layered above slides. Styled to be visible on any background.
+All navigation is `position: fixed` with high z-index, layered above slides. It must stay readable on mixed dark/light backgrounds through a subtle backdrop and text shadow.
 
-### Progress Bar
+Use the full implementation from `templates/slide-deck.html`. Keep it inline and self-contained; do not add an external `engine.js` asset.
 
-```css
-.deck-progress {
-  position: fixed;
-  top: 0;
-  left: 0;
-  height: 3px;
-  background: var(--accent);
-  z-index: 100;
-  transition: width 0.3s ease;
-  pointer-events: none;
-}
-```
+### Required reader controls
 
-### Nav Dots
+- Top progress bar.
+- Expandable right-side reader rail. At rest it is compact dots. On hover or keyboard focus it expands to show slide titles.
+- Slide counter with reading percent, for example `4 / 12 · 33%`.
+- Keyboard hints that mention arrows, `O` for outline, and `?` for help.
+- Outline overlay opened by `O`.
+- Help overlay opened by `?`.
+- `#slide-N` deep links. A URL hash always wins over saved resume state.
+- Resume with `localStorage`, keyed by path, document title, and slide count to reduce stale resumes after a deck is overwritten.
+
+### Progressive enhancement rules
+
+- Hide entrance states behind `.js` so decks remain visible with JavaScript disabled.
+- Instantiate the deck engine from the inline non-module script, not from the Mermaid module callback. The deck must still become readable if Mermaid fails to load.
+- Use DOM creation and `textContent` for dynamic slide titles. Do not build outline rows with untrusted `innerHTML`.
+- Use real `<button type="button">` controls with `aria-label`, `aria-current`, and visible focus states.
+- Do not let slide-level keyboard navigation run while focus is inside Mermaid, tables, code scroll regions, form controls, or contenteditable regions.
+
+### Shape of the right rail
 
 ```css
 .deck-dots {
@@ -200,229 +213,60 @@ All navigation is `position: fixed` with high z-index, layered above slides. Sty
   transform: translateY(-50%);
   display: flex;
   flex-direction: column;
-  gap: 8px;
-  z-index: 100;
+  width: 36px;
+  max-height: min(70dvh, 560px);
+  overflow-y: auto;
+  backdrop-filter: blur(4px);
+}
+
+.deck-dots:hover,
+.deck-dots:focus-within {
+  width: min(240px, calc(100vw - 32px));
 }
 
 .deck-dot {
-  width: 8px;
-  height: 8px;
-  border-radius: 50%;
-  background: var(--text-dim);
-  opacity: 0.3;
-  border: none;
-  padding: 0;
-  cursor: pointer;
-  transition: opacity 0.2s ease, transform 0.2s ease;
+  display: grid;
+  grid-template-columns: 8px minmax(0, 1fr);
+  gap: 0;
+  width: 20px;
 }
 
-.deck-dot:hover {
-  opacity: 0.6;
+.deck-dots:hover .deck-dot,
+.deck-dots:focus-within .deck-dot {
+  gap: 10px;
+  width: 100%;
 }
 
-.deck-dot.active {
-  opacity: 1;
-  transform: scale(1.5);
-  background: var(--accent);
-}
-```
-
-### Slide Counter
-
-```css
-.deck-counter {
-  position: fixed;
-  bottom: clamp(12px, 2vh, 24px);
-  right: clamp(12px, 2vw, 24px);
-  font-family: var(--font-mono);
-  font-size: 12px;
-  color: var(--text-dim);
-  z-index: 100;
-  font-variant-numeric: tabular-nums;
-}
-```
-
-### Keyboard Hints
-
-Auto-fade after first interaction or after 4 seconds.
-
-```css
-.deck-hints {
-  position: fixed;
-  bottom: clamp(12px, 2vh, 24px);
-  left: 50%;
-  transform: translateX(-50%);
-  font-family: var(--font-mono);
-  font-size: 11px;
-  color: var(--text-dim);
-  opacity: 0.6;
-  z-index: 100;
-  transition: opacity 0.5s ease;
-  white-space: nowrap;
-}
-
-.deck-hints.faded {
+.deck-dot-label {
+  max-width: 0;
+  overflow: hidden;
   opacity: 0;
-  pointer-events: none;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+}
+
+.deck-dots:hover .deck-dot-label,
+.deck-dots:focus-within .deck-dot-label {
+  max-width: 180px;
+  opacity: 0.9;
 }
 ```
 
-### Chrome Visibility on Mixed Backgrounds
+### SlideEngine responsibilities
 
-For decks where some slides are light and some dark (especially full-bleed slides), nav chrome needs to remain visible. Two approaches:
+The inline `SlideEngine` should own only deck reading behavior:
 
-```css
-/* Approach A: subtle backdrop on chrome elements */
-.deck-dots,
-.deck-counter {
-  background: color-mix(in srgb, var(--bg) 70%, transparent 30%);
-  padding: 6px;
-  border-radius: 20px;
-  backdrop-filter: blur(4px);
-  -webkit-backdrop-filter: blur(4px);
-}
+1. Build the progress bar, reader rail, counter, hint text, and outline/help overlay.
+2. Extract slide titles from `.slide__display`, `.slide__heading`, `blockquote`, or `.slide__kpi-label`.
+3. Navigate with arrows, PageUp/PageDown, Space, Home/End, touch swipes, rail buttons, and outline buttons.
+4. Observe visible slides and update progress, active rail item, counter, hash, and resume key.
+5. Restore from `#slide-N` first, then from localStorage when no hash exists.
 
-/* Approach B: text shadow for legibility on any background */
-.deck-counter,
-.deck-hints {
-  text-shadow: 0 1px 3px rgba(0, 0, 0, 0.3);
-}
-```
-
-## SlideEngine JavaScript
-
-Add once at the end of the page. Handles navigation, chrome updates, and scroll-triggered reveals. Event delegation ensures slide-internal interactions (Mermaid zoom, scrollable code, overflow tables) don't trigger slide navigation.
-
-```javascript
-class SlideEngine {
-  constructor() {
-    this.deck = document.querySelector('.deck');
-    this.slides = [...document.querySelectorAll('.slide')];
-    this.current = 0;
-    this.total = this.slides.length;
-    this.buildChrome();
-    this.bindEvents();
-    this.observe();
-    this.update();
-  }
-
-  buildChrome() {
-    // Progress bar
-    var bar = document.createElement('div');
-    bar.className = 'deck-progress';
-    document.body.appendChild(bar);
-    this.bar = bar;
-
-    // Nav dots
-    var dots = document.createElement('div');
-    dots.className = 'deck-dots';
-    var self = this;
-    this.slides.forEach(function(_, i) {
-      var d = document.createElement('button');
-      d.className = 'deck-dot';
-      d.title = 'Slide ' + (i + 1);
-      d.onclick = function() { self.goTo(i); };
-      dots.appendChild(d);
-    });
-    document.body.appendChild(dots);
-    this.dots = [].slice.call(dots.children);
-
-    // Counter
-    var ctr = document.createElement('div');
-    ctr.className = 'deck-counter';
-    document.body.appendChild(ctr);
-    this.counter = ctr;
-
-    // Keyboard hints
-    var hints = document.createElement('div');
-    hints.className = 'deck-hints';
-    hints.textContent = '\u2190 \u2192 or scroll to navigate';
-    document.body.appendChild(hints);
-    this.hints = hints;
-    this.hintTimer = setTimeout(function() {
-      hints.classList.add('faded');
-    }, 4000);
-  }
-
-  bindEvents() {
-    var self = this;
-    // Keyboard — skip if focus is inside interactive content
-    document.addEventListener('keydown', function(e) {
-      if (e.target.closest('.mermaid-wrap, .table-scroll, .code-scroll, input, textarea, [contenteditable]')) return;
-      if (['ArrowDown', 'ArrowRight', ' ', 'PageDown'].includes(e.key)) {
-        e.preventDefault(); self.next();
-      } else if (['ArrowUp', 'ArrowLeft', 'PageUp'].includes(e.key)) {
-        e.preventDefault(); self.prev();
-      } else if (e.key === 'Home') {
-        e.preventDefault(); self.goTo(0);
-      } else if (e.key === 'End') {
-        e.preventDefault(); self.goTo(self.total - 1);
-      }
-      self.fadeHints();
-    });
-
-    // Touch swipe
-    var touchY;
-    this.deck.addEventListener('touchstart', function(e) {
-      touchY = e.touches[0].clientY;
-    }, { passive: true });
-    this.deck.addEventListener('touchend', function(e) {
-      var dy = touchY - e.changedTouches[0].clientY;
-      if (Math.abs(dy) > 50) { dy > 0 ? self.next() : self.prev(); }
-    });
-  }
-
-  observe() {
-    var self = this;
-    var obs = new IntersectionObserver(function(entries) {
-      entries.forEach(function(entry) {
-        if (entry.isIntersecting) {
-          entry.target.classList.add('visible');
-          self.current = self.slides.indexOf(entry.target);
-          self.update();
-        }
-      });
-    }, { threshold: 0.5 });
-    this.slides.forEach(function(s) { obs.observe(s); });
-  }
-
-  goTo(i) {
-    this.slides[Math.max(0, Math.min(i, this.total - 1))]
-      .scrollIntoView({ behavior: 'smooth' });
-  }
-
-  next() { if (this.current < this.total - 1) this.goTo(this.current + 1); }
-  prev() { if (this.current > 0) this.goTo(this.current - 1); }
-
-  update() {
-    this.bar.style.width = ((this.current + 1) / this.total * 100) + '%';
-    var self = this;
-    this.dots.forEach(function(d, i) { d.classList.toggle('active', i === self.current); });
-    this.counter.textContent = (this.current + 1) + ' / ' + this.total;
-  }
-
-  fadeHints() {
-    clearTimeout(this.hintTimer);
-    this.hints.classList.add('faded');
-  }
-}
-```
-
-**Usage:** Instantiate after the DOM is ready and any libraries (Mermaid, Chart.js) have rendered. Always call `autoFit()` before `new SlideEngine()` so content is sized correctly before intersection observers fire.
-
-```html
-<script>
-  // After Mermaid/Chart.js initialization (if used), or at end of <body>:
-  document.addEventListener('DOMContentLoaded', function() {
-    autoFit();
-    new SlideEngine();
-  });
-</script>
-```
+Do not add quiz widgets, fact ledgers, validation scripts, fork updaters, or a separate engine file as part of the slide navigation layer.
 
 ## Auto-Fit
 
-A single post-render function that handles all known content overflow cases. Agents can't perfectly predict how text reflows at every viewport size, so `autoFit()` is a required safety net. Call it after Mermaid/Chart.js render but before SlideEngine init.
+A single post-render function that handles known rendering overflow cases. Agents can't perfectly predict how text reflows at every viewport size, so `autoFit()` is a safety net, never proof that the slide budget passed. Call it after Mermaid/Chart.js render but before SlideEngine init, then run the delivery check.
 
 ```javascript
 function autoFit() {
@@ -441,16 +285,20 @@ function autoFit() {
       var s = el.clientWidth / el.scrollWidth;
       el.style.transform = 'scale(' + s + ')';
       el.style.transformOrigin = 'left top';
+      var slide = el.closest('.slide');
+      if (slide) slide.setAttribute('data-auto-fit', 'KPI value');
     }
   });
 
-  // Blockquotes: reduce font proportionally for long text
+  // Blockquotes: reduce font proportionally only as a last-resort fallback
   document.querySelectorAll('.slide--quote blockquote').forEach(function(el) {
     var len = el.textContent.trim().length;
-    if (len > 100) {
-      var scale = Math.max(0.5, 100 / len);
+    if (len > 150) {
+      var scale = Math.max(0.5, 150 / len);
       var fs = parseFloat(getComputedStyle(el).fontSize);
       el.style.fontSize = Math.max(16, Math.round(fs * scale)) + 'px';
+      var slide = el.closest('.slide');
+      if (slide) slide.setAttribute('data-auto-fit', 'quote');
     }
   });
 }
@@ -458,8 +306,58 @@ function autoFit() {
 
 Three cases, one function:
 - **Mermaid:** SVGs render with fixed dimensions inside flex containers — force them to fill available width.
-- **KPI values:** Long text strings at hero scale overflow card boundaries — `transform: scale()` shrinks visually without reflow.
-- **Blockquotes:** Quotes longer than ~100 characters get proportionally smaller font. The 0.5 floor prevents unreadably small text; if it needs more than 50% shrink, it should have been a content slide.
+- **KPI values:** Long text strings at hero scale overflow card boundaries — `transform: scale()` shrinks visually without reflow. Mark the slide so the delivery check can still call out the fallback.
+- **Blockquotes:** Quotes over the ~150-character budget get proportionally smaller font. The 0.5 floor prevents unreadably small text, but `data-auto-fit="quote"` is still a review warning — split it into a content slide rather than treating the shrink as a pass.
+
+## Delivery Overflow Check
+
+`100dvh` is a hard content budget, not an instruction to hide overflow. Run the check at the target viewport and at a short landscape height with `prefers-reduced-motion: reduce` enabled. The reference template disables entrance states in that mode, outlines failures, and prints the offending slide numbers. It also keeps slides marked by `autoFit()` visible as review warnings, so a fallback cannot silently turn an over-budget slide into a pass.
+
+The check is intentionally self-contained and should run after fonts and Mermaid/Chart.js content settle. The reference template invokes the same check after rendering whenever reduced motion is enabled; retain that invocation in a custom deck or run this snippet manually during review:
+
+```javascript
+function checkSlideOverflow() {
+  var failures = [];
+  document.querySelectorAll('.slide').forEach(function(slide, index) {
+    var excess = Math.ceil(slide.scrollHeight - slide.clientHeight);
+    var autoFit = slide.getAttribute('data-auto-fit');
+    var reasons = [];
+    if (excess > 1) reasons.push('vertical overflow ' + excess + 'px');
+    if (autoFit) reasons.push('autoFit: ' + autoFit);
+
+    if (reasons.length) {
+      var kind = excess > 1 ? 'overflow' : 'auto-fit';
+      slide.setAttribute('data-slide-check', kind);
+      slide.setAttribute(
+        'data-slide-check-label',
+        excess > 1
+          ? 'OVERFLOW — split or reduce (' + excess + 'px)'
+          : 'AUTO-FIT USED — review budget (' + autoFit + ')'
+      );
+      failures.push('Slide ' + (index + 1) + ': ' + reasons.join('; '));
+    } else {
+      slide.removeAttribute('data-slide-check');
+      slide.removeAttribute('data-slide-check-label');
+    }
+  });
+
+  if (failures.length) {
+    console.error(
+      'Slide delivery check failed. ' + failures.join(' | ') +
+      '. Split or reduce content; autoFit is only a safety net.'
+    );
+  } else {
+    console.info('Slide delivery check passed: no vertical overflow or autoFit fallback.');
+  }
+  return failures;
+}
+
+if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
+  requestAnimationFrame(checkSlideOverflow);
+}
+```
+
+Do not ship with `data-slide-check` warnings unresolved. A flagged slide needs fewer items, a smaller composition, or another slide; do not solve a vertical failure by adding an inner scroller or by lowering readable type below the typography minimum.
 
 ## Slide Type Layouts
 
@@ -1183,7 +1081,7 @@ Slides get projected, screen-shared, viewed at distance. Design accordingly:
 
 ## Content Density Limits
 
-Each slide must fit in exactly 100dvh. If content exceeds these limits, the agent splits across multiple slides — never scrolls within a slide.
+Each slide has one `100dvh` content budget. The delivery check must pass before the deck is considered fit; `overflow: hidden` is a clipping guard, not a fit test. If content exceeds these limits, the agent splits across multiple slides — never scrolls within a slide or relies on `autoFit()` to conceal the excess.
 
 | Slide type | Max content |
 |-----------|-------------|
@@ -1195,7 +1093,7 @@ Each slide must fit in exactly 100dvh. If content exceeds these limits, the agen
 | Dashboard | 1 heading + 6 KPI cards. Hero values ≤6 chars (numbers, %, short labels). Longer strings belong in the label row. |
 | Table | 1 heading + 8 rows; overflow paginates to next slide |
 | Code | 1 heading + 10 lines of code |
-| Quote | 1 short quote (~25 words / ~150 chars max) + 1 attribution. Longer quotes are content slides, not quote slides. |
+| Quote | 1 short quote (~25 words / ~150 chars max) + 1 attribution. Quotes over 150 characters trigger the `autoFit()` review warning; move longer quotes to content slides. |
 | Full-Bleed | 1 heading + 1 subtitle over background |
 
 ## Responsive Height Breakpoints

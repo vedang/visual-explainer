@@ -2,3 +2,4 @@
 .agents/plans/
 .pi/extensions/simplify-code.json
 .pi-subagents/
+.pi/subagents/

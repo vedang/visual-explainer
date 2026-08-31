@@ -4,6 +4,7 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>CI/CD Pipeline — Reference Template</title>
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect width='64' height='64' rx='14' fill='%230f172a'/%3E%3Cpath d='M18 40V24l14-8 14 8v16l-14 8-14-8Z' fill='none' stroke='%23fbbf24' stroke-width='4' stroke-linejoin='round'/%3E%3Ccircle cx='32' cy='32' r='5' fill='%2338bdf8'/%3E%3C/svg%3E">
 <!--
   Reference template for the visual-explainer skill: Mermaid diagrams.
   Teal/cyan palette — distinctly different from terracotta (architecture)
@@ -411,6 +412,8 @@
     }
   });
 
+  const rerenderers = [];
+
   function initDiagram(shell) {
     const wrap = shell.querySelector('.mermaid-wrap');
     const viewport = shell.querySelector('.mermaid-viewport');
@@ -567,9 +570,10 @@
       clone.style.width = '';
       clone.style.height = '';
 
-      // Use the same isDark value that was used to render the Mermaid theme
-      // This ensures the background matches the baked-in SVG colors
-      const bg = isDark ? '#042f2e' : '#f0fdfa';
+      // Mermaid derives clusterBkg and tertiaryColor from --bg, so the export
+      // has to read it live to sit on the same ground as the diagram.
+      const bg = getComputedStyle(document.documentElement)
+        .getPropertyValue('--bg').trim() || (isDark ? '#042f2e' : '#f0fdfa');
 
       const html = `<!DOCTYPE html><html lang="en"><head><meta charset="UTF-8">
       <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -720,10 +724,15 @@
       }
     }).observe(wrap);
 
+    rerenderers.push(render);
     render();
   }
 
   document.querySelectorAll('.diagram-shell').forEach(initDiagram);
+
+  // Mermaid bakes colors into the SVG at render time, so a page that swaps the
+  // palette at runtime must re-render every diagram to follow it.
+  window.rerenderDiagrams = () => Promise.all(rerenderers.map((render) => render()));
 </script>
 
 </body>
